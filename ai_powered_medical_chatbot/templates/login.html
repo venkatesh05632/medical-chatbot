@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .bg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: -1;
+      animation: pulse 10s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0% { background: rgba(0, 0, 0, 0.3); }
+      50% { background: rgba(0, 0, 0, 0.6); }
+      100% { background: rgba(0, 0, 0, 0.3); }
+    }
+
+    .codehal-bg span {
+      position: absolute;
+      display: block;
+      width: 20vmin;
+      height: 20vmin;
+      background: rgba(255, 255, 255, 0.05);
+      animation: floatHalo 25s linear infinite;
+      border-radius: 50%;
+      filter: blur(30px);
+      bottom: -150px;
+    }
+
+    .codehal-bg span:nth-child(even) {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    @keyframes floatHalo {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+    }
+
+    .codehal-bg span {
+      left: calc(15% * var(--i));
+      animation-delay: calc(3s * var(--i));
+      animation-duration: calc(20s + (5s * var(--i)));
+    }
+
+    .blob-bg {
+      position: absolute;
+      top: -100px;
+      left: -100px;
+      width: 1000px;
+      height: 1000px;
+      z-index: -3;
+      pointer-events: none;
+      filter: blur(50px);
+      opacity: 0.7;
+    }
+
+    /* 👇 Medical Floating Icons */
+    .medical-bg span {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      opacity: 0.08;
+      animation: floatIcons 30s linear infinite;
+      z-index: -4;
+    }
+
+    @keyframes floatIcons {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.1;
+      }
+      50% {
+        transform: translateY(-500px) rotate(180deg);
+        opacity: 0.2;
+      }
+      100% {
+        transform: translateY(-1000px) rotate(360deg);
+        opacity: 0.1;
+      }
+    }
+
+    .medical-bg span:nth-child(1) {
+      left: 10%;
+      animation-delay: 0s;
+      background-image: url('https://img.icons8.com/ios-filled/50/stethoscope.png');
+    }
+    .medical-bg span:nth-child(2) {
+      left: 25%;
+      animation-delay: 5s;
+      background-image: url('https://img.icons8.com/ios-filled/50/pill.png');
+    }
+    .medical-bg span:nth-child(3) {
+      left: 40%;
+      animation-delay: 10s;
+      background-image: url('https://img.icons8.com/ios-filled/50/heart-with-pulse.png');
+    }
+    .medical-bg span:nth-child(4) {
+      left: 60%;
+      animation-delay: 15s;
+      background-image: url('https://img.icons8.com/ios-filled/50/thermometer.png');
+    }
+    .medical-bg span:nth-child(5) {
+      left: 75%;
+      animation-delay: 20s;
+      background-image: url('https://img.icons8.com/ios-filled/50/syringe.png');
+    }
+    .medical-bg span:nth-child(6) {
+      left: 90%;
+      animation-delay: 25s;
+      background-image: url('https://img.icons8.com/ios-filled/50/hospital-room.png');
+    }
+
+    .login-box {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      width: 90%;
+      max-width: 350px;
+      z-index: 1;
+    }
+
+    .login-box img.logo {
+      width: 60px;
+      margin-bottom: 10px;
+    }
+
+    .login-box img.cat {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      margin-bottom: 25px;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      text-align: left;
+      margin-bottom: 5px;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .mic-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 35px 10px 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #c2185b;
+    }
+
+    .error-message {
+      margin-top: 10px;
+      color: red;
+    }
+
+    @media (max-width: 500px) {
+      .login-box {
+        padding: 20px;
+      }
+
+      .login-box img.logo {
+        width: 50px;
+      }
+
+      .login-box img.cat {
+        max-height: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🌟 Background Layers -->
+  <div class="bg-overlay"></div>
+
+  <div class="codehal-bg">
+    <span style="--i:1;"></span>
+    <span style="--i:2;"></span>
+    <span style="--i:3;"></span>
+    <span style="--i:4;"></span>
+    <span style="--i:5;"></span>
+    <span style="--i:6;"></span>
+  </div>
+
+  <!-- 🩺 Floating Medical Icons -->
+  <div class="medical-bg">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- 🧬 SVG Blob -->
+  <svg class="blob-bg" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(300,300)">
+      <path id="blob1" d="M120,-150C150,-120,170,-80,180,-30C190,20,180,70,150,110C120,150,80,180,30,190C-20,200,-70,190,-110,160C-150,130,-180,80,-180,30C-180,-20,-160,-70,-130,-110C-100,-150,-50,-180,0,-180C50,-180,100,-150,120,-150Z" fill="rgba(255,255,255,0.05)">
+        <animate attributeName="d" dur="20s" repeatCount="indefinite"
+          values="M120,-150C150,-120,170,-80,180,-30C190,20,180,70,150,110C120,150,80,180,30,190C-20,200,-70,190,-110,160C-150,130,-180,80,-180,30C-180,-20,-160,-70,-130,-110C-100,-150,-50,-180,0,-180C50,-180,100,-150,120,-150Z;
+                  M140,-130C160,-100,170,-60,170,-10C170,40,160,90,130,130C100,170,60,200,10,200C-40,200,-90,180,-130,140C-170,100,-200,50,-200,0C-200,-50,-180,-100,-140,-130C-100,-160,-50,-170,0,-170C50,-170,100,-150,140,-130Z;
+                  M120,-150C150,-120,170,-80,180,-30C190,20,180,70,150,110C120,150,80,180,30,190C-20,200,-70,190,-110,160C-150,130,-180,80,-180,30C-180,-20,-160,-70,-130,-110C-100,-150,-50,-180,0,-180C50,-180,100,-150,120,-150Z;">
+        </animate>
+      </path>
+    </g>
+  </svg>
+
+  <!-- 🔐 Login UI -->
+  <div class="login-box">
+    <img class="logo" src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" alt="Key Icon">
+    
+    <h1>Login</h1>
+    <form method="post" action="/login" onsubmit="return speakOnSubmit()">
+      <label>Username:</label>
+      <div class="input-group">
+        <input type="text" name="username" id="username" required>
+        <button type="button" class="mic-btn" onclick="startRecognition('username')" title="Speak Username">🎤</button>
+      </div>
+
+      <label>Password:</label>
+      <div class="input-group">
+        <input type="password" name="password" id="password" required>
+        <button type="button" class="mic-btn" onclick="startRecognition('password')" title="Speak Password">🎤</button>
+      </div>
+
+      <input type="submit" value="Login">
+    </form>
+    {% if message %}
+    <p class="error-message">{{ message }}</p>
+    {% endif %}
+  </div>
+
+  <!-- 🔊 Voice Scripts -->
+  <script>
+    window.addEventListener('load', () => {
+      const welcomeMessage = new SpeechSynthesisUtterance("Welcome to the login page. Please enter your credentials.");
+      speechSynthesis.speak(welcomeMessage);
+    });
+
+    function speakOnSubmit() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!username || !password) {
+        const alertMsg = new SpeechSynthesisUtterance("Please fill in both the username and password fields.");
+        speechSynthesis.speak(alertMsg);
+        return false;
+      }
+      return true;
+    }
+
+    function startRecognition(fieldId) {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        document.getElementById(fieldId).value = event.results[0][0].transcript;
+      };
+
+      recognition.onerror = () => {
+        const errorMsg = new SpeechSynthesisUtterance("Sorry, I couldn't understand. Please try again.");
+        speechSynthesis.speak(errorMsg);
+      };
+    }
+  </script>
+</body>
+</html>

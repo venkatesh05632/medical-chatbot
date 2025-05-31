@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(-45deg, #66ccff, #99cc66, #ffcccb, #ffe066);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      position: relative;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .stethoscope-icon {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 60px;  /* Adjust the size of the image */
+      height: auto;
+      z-index: 2;
+    }
+
+    h1 {
+      color: #0044cc;
+      margin-top: 80px;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 600px;
+      z-index: 2;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+      text-align: left;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      font-size: 16px;
+      resize: none;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+
+    input[type="submit"],
+    button {
+      background-color: #28a745;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover,
+    button:hover {
+      background-color: #218838;
+    }
+
+    .mic-btn {
+      background: none;
+      border: none;
+      color: #ff5722;
+      font-size: 24px;
+      cursor: pointer;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    .mic-btn:hover { color: #e64a19; }
+
+    img.upload-preview {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin-top: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    img.upload-preview:hover { transform: scale(1.05); }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+      form { padding: 20px; }
+      textarea { font-size: 14px; }
+      input[type="submit"],
+      button { width: 100%; }
+      .stethoscope-icon { width: 45px; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Welcome to the Medical Assistant</h1>
+
+  <form method="post" action="/" enctype="multipart/form-data">
+    <label for="symptoms">Describe your symptoms:</label>
+    <textarea id="symptoms" name="symptoms" rows="4" required></textarea>
+    <button type="button" class="mic-btn" onclick="toggleVoiceRecognition()">🎤</button>
+
+    <label for="image">Upload an image :</label>
+    <input type="file" name="image" accept="image/*" required>
+    <input type="submit" value="Analyze">
+  </form>
+  {% if image_url %}
+    <h2>Uploaded Image:</h2>
+    <img src="{{ image_url }}" alt="Uploaded Image" class="upload-preview">
+  {% endif %}
+
+  {% if response %}
+    <h2>Medical Response:</h2>
+    <p id="medical-response">{{ response }}</p>
+    <button id="listen-btn" onclick="speakResponse()">🔊 Listen</button>
+    <button id="stop-btn" onclick="stopSpeech()" style="display: none;">⛔ Stop</button>
+    <button id="toggle-response-btn" onclick="toggleResponseVisibility()">Hide Response</button>
+  {% endif %}
+
+  <br>
+  <a href="/logout">Logout</a>
+
+  <script>
+    let recognition;
+    let isListening = false;
+    let isResponseVisible = true;
+    let speechSynthesisUtterance = null;
+
+    // Welcome message on page load
+    window.addEventListener('load', () => {
+      const welcomeMessage = new SpeechSynthesisUtterance("Welcome to the Medical Assistant. Please describe your symptoms for analysis.");
+      speechSynthesis.speak(welcomeMessage);
+    });
+
+    function toggleVoiceRecognition() {
+      if (isListening) {
+        recognition.stop();
+        document.querySelector('.mic-btn').textContent = '🎤';
+        isListening = false;
+      } else {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.start();
+
+        recognition.onresult = function (event) {
+          document.getElementById('symptoms').value = event.results[0][0].transcript;
+        };
+
+        recognition.onerror = function () {
+          alert("Could not understand your voice. Try again.");
+        };
+
+        document.querySelector('.mic-btn').textContent = '🛑';
+        isListening = true;
+      }
+    }
+
+    function speakResponse() {
+      const text = document.getElementById("medical-response").innerText;
+      speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(speechSynthesisUtterance);
+      document.getElementById("listen-btn").style.display = "none";
+      document.getElementById("stop-btn").style.display = "inline-block";
+    }
+
+    function stopSpeech() {
+      if (speechSynthesisUtterance) {
+        window.speechSynthesis.cancel();
+      }
+      document.getElementById("listen-btn").style.display = "inline-block";
+      document.getElementById("stop-btn").style.display = "none";
+    }
+
+    function toggleResponseVisibility() {
+      const responseElement = document.getElementById("medical-response");
+      const button = document.getElementById("toggle-response-btn");
+
+      if (isResponseVisible) {
+        responseElement.style.display = "none";
+        button.textContent = "Show Response";
+      } else {
+        responseElement.style.display = "block";
+        button.textContent = "Hide Response";
+      }
+
+      isResponseVisible = !isResponseVisible;
+    }
+  </script>
+</body>
+</html>
